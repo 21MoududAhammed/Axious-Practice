@@ -55,12 +55,26 @@ export default function App() {
     }
   };
 
-  const handleEditPost = (updatedPost) => {
-    const updatedPosts = posts.map((post) =>
-      post.id === updatedPost.id ? updatedPost : post
-    );
+  const handleEditPost = async (updatedPost) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:8000/posts/${updatedPost.id}`,
+        updatedPost
+      );
 
-    setPosts(updatedPosts);
+      const updatedPosts = posts.map((post) =>
+        post.id === updatedPost.id ? response.data : post
+      );
+      if (response.data) {
+        setPosts(updatedPosts);
+      }
+    } catch (err) {
+      if(err.response){
+        setError( `Server Error Status: ${err.status} Message: ${err.message}`);
+      }else{
+        setError(err.message);
+      }
+    }
   };
 
   // fetch posts by axious
