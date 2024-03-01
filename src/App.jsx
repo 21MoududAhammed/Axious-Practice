@@ -11,16 +11,31 @@ export default function App() {
   const [post, setPost] = useState(null); // post I am editing
   const [error, setError] = useState(null);
 
-  const handleAddPost = (newPost) => {
-    const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
-
-    setPosts([
-      ...posts,
-      {
-        id,
+  const handleAddPost = async (newPost) => {
+    try {
+      const id = posts.length ? Number(posts[posts.length - 1].id) + 1 : 1;
+      const nextPost = {
         ...newPost,
-      },
-    ]);
+        id: id,
+      };
+      // It post a element then return it
+      const response = await axios.post(
+        `http://localhost:8000/posts`,
+        nextPost
+      );
+      console.log(response);
+      if (response.data) {
+        setPosts([...posts, response.data]);
+      }
+    } catch (err) {
+      if (err.response) {
+        setError(
+          `Server Error Status: ${err.status} Message: ${err.message}`
+        );
+      } else {
+        setError(err.message);
+      }
+    }
   };
 
   const handleDeletePost = (postId) => {
@@ -49,7 +64,7 @@ export default function App() {
           setPosts(response.data);
         }
       } catch (err) {
-        // if server is not running err dosen't contain response 
+        // if server is not running err dosen't contain response
         if (err.response) {
           setError(
             `Server Error Status: ${err.status} Message: ${err.message}`
