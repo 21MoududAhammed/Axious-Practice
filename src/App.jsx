@@ -16,7 +16,7 @@ export default function App() {
       const id = posts.length ? Number(posts[posts.length - 1].id) + 1 : 1;
       const nextPost = {
         ...newPost,
-        id: id,
+        id: id.toString(),
       };
       // It post a element then return it
       const response = await axios.post(
@@ -29,21 +29,29 @@ export default function App() {
       }
     } catch (err) {
       if (err.response) {
-        setError(
-          `Server Error Status: ${err.status} Message: ${err.message}`
-        );
+        setError(`Server Error Status: ${err.status} Message: ${err.message}`);
       } else {
         setError(err.message);
       }
     }
   };
 
-  const handleDeletePost = (postId) => {
-    if (confirm("Are you sure you want to delete the post?")) {
-      const newPosts = posts.filter((post) => post.id !== postId);
-      setPosts(newPosts);
-    } else {
-      console("You chose not to delete the post!");
+  const handleDeletePost = async (postId) => {
+    try {
+      if (confirm("Are you sure you want to delete the post?")) {
+        const nextPosts = posts.filter((post) => post.id !== postId);
+        // delete from server
+        await axios.delete(`http://localhost:8000/posts/${postId}`);
+        setPosts(nextPosts);
+      } else {
+        console("You chose not to delete the post!");
+      }
+    } catch (err) {
+      if (err.response) {
+        setError(`Server Error Status: ${err.status} Message: ${err.message}`);
+      } else {
+        setError(err.message);
+      }
     }
   };
 
